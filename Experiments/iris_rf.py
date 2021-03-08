@@ -1,12 +1,11 @@
-from mlr.Models.DecisionTree import DecisionTreeClassifier
+from mlr.Models.Ensemble import RandomForestClassifier
 import torch
 
 from utils import loadData
 
 
-PATH = '../Datasets/Titanic/train.csv'
 SAVED = './data.pickle'
-DATASET = 'Titanic'
+DATASET = 'Iris'
 
 
 def main():
@@ -14,18 +13,22 @@ def main():
     # Load data
     x, y, columns = loadData(DATASET, SAVED)
 
+    # Randomly permute data
+    rargs = torch.randperm(x.shape[0])
+    x, y = x[rargs], y[rargs]
+
     # Train/Test split 80/20
     trnidx = int(x.shape[0] * .8)
     xtrain, ytrain = x[:trnidx], y[:trnidx]
     xtest, ytest = x[trnidx:], y[trnidx:]
     classes = [c.item() for c in torch.unique(ytrain)]
 
-    # Train 
-    tree = DecisionTreeClassifier(maxDepth=3)
-    tree.fit(xtrain, ytrain, classes)
+    # Train
+    forest = RandomForestClassifier(numTrees=10, maxDepth=None, leafSize=1, bootstrapRatio=0.3)
+    forest.fit(xtrain, ytrain, classes)
 
     # Test
-    ypred = tree.predict(xtest)
+    ypred = forest.predict(xtest)
     acc = torch.sum((ytest==ypred).float()) / ytest.shape[0]
     print('Test Accuracy: %.4f' % acc)
 

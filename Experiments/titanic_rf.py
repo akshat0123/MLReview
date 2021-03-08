@@ -1,4 +1,4 @@
-from mlr.Models.DecisionTree import DecisionTreeClassifier
+from mlr.Models.Ensemble import RandomForestClassifier
 import torch
 
 from utils import loadData
@@ -20,14 +20,14 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:]
     classes = [c.item() for c in torch.unique(ytrain)]
 
-    # Train 
-    tree = DecisionTreeClassifier(maxDepth=3)
-    tree.fit(xtrain, ytrain, classes)
+    # Train
+    forest = RandomForestClassifier(numTrees=10, maxDepth=5, leafSize=1, bootstrapRatio=0.1)
+    forest.fit(xtrain, ytrain, classes)
 
     # Test
-    ypred = tree.predict(xtest)
+    ypred = forest.predict(xtest)
     acc = torch.sum((ytest==ypred).float()) / ytest.shape[0]
-    print('Test Accuracy: %.4f' % acc)
+    print('Accuracy: %.4f' % acc)
 
 
 if __name__ == '__main__':
