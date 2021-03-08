@@ -1,0 +1,35 @@
+\documentclass[titlepage]{article}
+\usepackage{geometry}
+
+% Math
+\usepackage{amsmath}
+\allowdisplaybreaks
+
+% Figure
+\usepackage{caption, float}
+
+% Graph
+\usepackage{tikz}
+
+% Code
+\usepackage{listings}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstset{backgroundcolor=\color{backcolour}, language=Python, commentstyle=\color{gray}, tabsize=4, numbers=left, basicstyle=\footnotesize}
+
+\title{Machine Learning Review}
+\author{Akshat Pandey}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents\newpage
+
+\input{1_logistic_regression}\newpage
+\input{2_softmax_regression}\newpage
+\input{3_linear_regression}\newpage
+\input{4_decision_tree}\newpage
+\input{5_ensemble_learning}
+
+\end{document}

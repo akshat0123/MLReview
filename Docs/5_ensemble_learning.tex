@@ -1,0 +1,29 @@
+\section{Ensemble Learning}
+
+\subsection{Random Forests}
+
+\begin{figure}[h]
+    \begin{lstlisting}[gobble=8]
+        for b = 1 to B:
+            Retrieve a bootstrap sample
+            Grow a full decision tree on the sample with random features
+        return ensemble 
+    \end{lstlisting}
+    \caption{Random Forest construction process}
+\end{figure}
+
+\begin{align*}
+    f(x) &= \frac{1}{B}\sum^{B}_{b=1} T_b(x) & \text{[Regression]}\\
+    f(x) &= \text{majority vote} \{T_b(x)\}^{B}_{1} & \text{[Classification]}\\
+\end{align*}
+
+\subsection{Gradient Boosted Trees}
+\begin{figure}[h]
+    \begin{lstlisting}[gobble=8]
+        fit tree to data
+        calculate gradient
+
+        while loss not acceptable:
+            fit new tree to negative gradient
+    \end{lstlisting}
+\end{figure}

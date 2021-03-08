@@ -1,0 +1,5 @@
+Experiments/*.pickle
+Docs/*.aux
+Docs/*.log
+Docs/*.toc
+__pycache__
