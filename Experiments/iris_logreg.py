@@ -1,4 +1,4 @@
-from mlr.Models.LinearModel import SoftmaxRegressionClassifier, OneHotErrorRate
+from mlr.Models.LinearModel import SoftmaxRegressionClassifier, ErrorRate
 from mlr.Preprocessing.Preprocessing import createOneHotColumn
 import torch
 
@@ -13,7 +13,6 @@ def main():
 
     # Load data
     x, y, columns = loadData(DATASET, SAVED)
-    y = torch.Tensor(createOneHotColumn(y.numpy())[0])
 
     # Randomly permute data
     rargs = torch.randperm(x.shape[0])
@@ -31,7 +30,7 @@ def main():
 
     # Test
     ypred = clf.predict(xtest)
-    accuracy = 1 - OneHotErrorRate(ytest, ypred)
+    accuracy = 1 - ErrorRate(ytest, ypred)
     print('Accuracy: %.4f' % accuracy)
 
 

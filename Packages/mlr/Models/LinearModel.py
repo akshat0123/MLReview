@@ -1,3 +1,4 @@
+from mlr.Preprocessing.Preprocessing import createOneHotColumn
 from mlr.Models.Loss import *
 from tqdm import trange, tqdm
 import torch
@@ -31,7 +32,7 @@ class LogisticRegressionClassifier:
 
             start, end = 0, batch
             for b in range((x.shape[0]//batch)+1):
-                hx = self.predict(x[start:end])
+                hx = self.probs(x[start:end])
                 dw = self.calcGradient(x[start:end], y[start:end], hx)
                 self.w = self.w - (alpha * dw)
                 start += batch
@@ -40,6 +41,20 @@ class LogisticRegressionClassifier:
             hx = self.predict(x)
             error = self.calcError(y, hx)
             epochs.set_description('Err: %.4f' % error)
+
+
+    def probs(self, x: torch.Tensor) -> torch.Tensor:
+        """ Determine probability of label being 1
+
+        Args:
+            x: input data
+
+        Returns
+            probability for each member of input
+        """
+
+        hx = 1 / (1 + torch.exp(-torch.einsum('ij,kj->i', x, self.w)))[:, None]
+        return hx
 
 
     def predict(self, x: torch.Tensor) -> torch.Tensor:
@@ -52,8 +67,8 @@ class LogisticRegressionClassifier:
             labels for each member of input
         """
 
-        hx = 1 / (1 + torch.exp(-torch.einsum('ij,kj->i', x, self.w)))
-        hx = (hx >= 0.5).float()[:, None]
+        hx = self.probs(x)
+        hx = (hx >= 0.5).float()
         return hx
 
 
@@ -94,6 +109,7 @@ class SoftmaxRegressionClassifier:
             batch: size of batches for training
         """
 
+        y = torch.Tensor(createOneHotColumn(y.numpy())[0])
         self.w = torch.rand((y.shape[1], x.shape[1]))
 
         epochs = trange(epochs, desc='Accuracy')
@@ -105,16 +121,29 @@ class SoftmaxRegressionClassifier:
             start, end = 0, batch
             for b in range((x.shape[0]//batch)+1):
                 if start < x.shape[0]:
-                    sz = self.predict(x[start:end]) 
+                    sz = self.probs(x[start:end]) 
                     dw = self.calcGradient(x[start:end], y[start:end], sz)
                     self.w = self.w - alpha * dw
 
                 start += batch
                 end += batch
 
-            sz = self.predict(x)
+            sz = self.probs(x)
             accuracy = 1 - OneHotErrorRate(y, sz)
             epochs.set_description('Accuracy: %.4f' % accuracy)
+
+
+    def probs(self, x: torch.Tensor) -> torch.Tensor:
+        """ Predict probabilities of belonging to each class
+
+        Args:
+            x: input data
+
+        Returns
+            probabilities for each member of input
+        """
+
+        return Softmax(torch.einsum('ij,kj->ik', x, self.w))
 
 
     def predict(self, x: torch.Tensor) -> torch.Tensor:
@@ -127,7 +156,8 @@ class SoftmaxRegressionClassifier:
             labels for each member of input
         """
 
-        return Softmax(torch.einsum('ij,kj->ik', x, self.w))
+        hx = self.probs(x)
+        return torch.argmax(hx, dim=1)[:, None]
 
 
     def calcGradient(self, x: torch.Tensor, y: torch.Tensor, probs: torch.Tensor) -> torch.Tensor:
