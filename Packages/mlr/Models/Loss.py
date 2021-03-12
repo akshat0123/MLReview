@@ -41,18 +41,3 @@ def OneHotErrorRate(y: torch.Tensor, yhat: torch.Tensor) -> torch.Tensor:
     """
 
     return ErrorRate(torch.argmax(y, dim=1), torch.argmax(yhat, dim=1))
-
-
-def Softmax(x: torch.Tensor) -> torch.Tensor:
-    """ Apply softmax function to tensor
-
-    Args:
-        x: input tensor
-
-    Returns:
-        tensor with softmax function applied to all members
-    """
-
-    return torch.exp(x) / torch.sum(torch.exp(x), dim=1)[:, None]
-
-

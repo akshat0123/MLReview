@@ -1,4 +1,5 @@
 from mlr.Preprocessing.Preprocessing import createOneHotColumn
+from mlr.Models.Activation import *
 from mlr.Models.Loss import *
 from tqdm import trange, tqdm
 import torch
@@ -49,7 +50,7 @@ class LogisticRegressionClassifier:
         Args:
             x: input data
 
-        Returns
+        Returns:
             probability for each member of input
         """
 
@@ -63,7 +64,7 @@ class LogisticRegressionClassifier:
         Args:
             x: input data
 
-        Returns
+        Returns:
             labels for each member of input
         """
 
@@ -139,7 +140,7 @@ class SoftmaxRegressionClassifier:
         Args:
             x: input data
 
-        Returns
+        Returns:
             probabilities for each member of input
         """
 
@@ -152,7 +153,7 @@ class SoftmaxRegressionClassifier:
         Args:
             x: input data
 
-        Returns
+        Returns:
             labels for each member of input
         """
 
@@ -221,7 +222,7 @@ class LinearRegressor:
         Args:
             x: input data
 
-        Returns
+        Returns:
             regression output for each member of input
         """
 
