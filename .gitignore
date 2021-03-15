@@ -1,6 +1,6 @@
 Experiments/*.pickle
-Docs/*.aux
-Docs/*.log
-Docs/*.out
-Docs/*.toc
+Docs/Notes/*.aux
+Docs/Notes/*.log
+Docs/Notes/*.out
+Docs/Notes/*.toc
 __pycache__

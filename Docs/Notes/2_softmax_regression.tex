@@ -8,37 +8,7 @@
     w &= w - \alpha \times \frac{1}{B} \sum^{B}_{i=1}x_i(S(z_i) - y_i) & \text{[Batch Weight Update]}\\
 \end{align*}
 
-\begin{figure}[h]
-    \centering
-    \begin{tikzpicture}[
-        node/.style=draw, circle, minimum size=3em,
-        forward/.style=->, >=stealth,
-        scale=2
-    ]
-        \node[node] (x) at  (0, 0) {$x$};
-        \node[node] (z1) at (1, 1)  {$z_1$};
-        \node[node] (z2) at (1, 0)  {$z_2$};
-        \node[node] (zk) at (1, -1.5) {$z_k$};
-        \draw[forward] (x) edge node [midway, above, left] {$w_1$} (z1);
-        \draw[forward] (x) edge node [midway, above] {$w_2$} (z2);
-        \draw[forward] (x) edge node [midway, above, left] {$w_k$} (zk);
-        \draw[dotted] (z2) -- (zk);
-        \node[node] (hz1) at (2, 1)  {$S(z_1)$};
-        \node[node] (hz2) at (2, 0)  {$S(z_2)$};
-        \node[node] (hzk) at (2, -1.5) {$S(z_k)$};
-        \draw[forward] (z1) -- (hz1);
-        \draw[forward] (z2) -- (hz2);
-        \draw[forward] (zk) -- (hzk);
-        \draw[dotted] (hz2) -- (hzk);
-        \node[node] (y) at (3, -1.5) {$y$};
-        \node[node] (l) at (3.5, 0) {$L$};
-        \draw[forward] (hz1) -- (l);
-        \draw[forward] (hz2) -- (l);
-        \draw[forward] (hzk) -- (l);
-        \draw[forward] (y) -- (l);
-    \end{tikzpicture}
-    \caption{Softmax Regression Computation Graph}
-\end{figure}
+\input{tikz/softmax_regression_computation_graph}
 
 \subsection{Derivations}
 Derivative of arbitrary sigmoid output $S(z_j)$ with respect to arbitrary linear combination output $z_i$:\\ 

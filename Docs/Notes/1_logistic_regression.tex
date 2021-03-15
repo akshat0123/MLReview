@@ -8,25 +8,7 @@
     w &= w - \alpha \times \frac{1}{B}\sum^{B}_{i=1} x_i (h(z_i) - y_i) & [\text{Batch Weight Update}]\\
 \end{align*}
 
-\begin{figure}[h]
-    \centering
-    \begin{tikzpicture}[
-        node/.style=draw, circle, minimum size=3em,
-        forward/.style=->, >=stealth,
-        scale=2
-    ]
-        \node[node] (x) at (0, 0) {$x$};
-        \node[node] (z) at (1, 0) {$z$};
-        \draw[forward] (x) edge node [midway, above] {$w$} (z);
-        \node[node] (hz) at (2, 0) {$h(z)$};
-        \draw[forward] (z) -- (hz);
-        \node[node] (y) at (2, -1) {$y$};
-        \node[node] (l) at (3, -0) {$L_{CE}$};
-        \draw[forward] (hz) -- (l);
-        \draw[forward] (y) -- (l);
-    \end{tikzpicture}
-    \caption{Logistic Regression Computation Graph}
-\end{figure}
+\input{tikz/logistic_regression_computation_graph}
 
 \subsection{Derivations}
 Derivative of Logistic Function\\
