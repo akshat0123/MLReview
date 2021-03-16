@@ -1,3 +1,4 @@
+Docs/Notebooks/*.ipynb_checkpoints
 Experiments/*.pickle
 Docs/Notes/*.aux
 Docs/Notes/*.log

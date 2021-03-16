@@ -96,7 +96,7 @@ class SoftmaxRegressionClassifier:
         """
 
         self.w = None
-        self.calcError = ErrorRate
+        self.calcError = OneHotErrorRate
 
 
     def fit(self, x, y, alpha=1e-4, epochs=1000, batch=32):
@@ -130,7 +130,7 @@ class SoftmaxRegressionClassifier:
                 end += batch
 
             sz = self.probs(x)
-            accuracy = 1 - OneHotErrorRate(y, sz)
+            accuracy = 1 - self.calcError(y, sz)
             epochs.set_description('Accuracy: %.4f' % accuracy)
 
 
