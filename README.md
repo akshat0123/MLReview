@@ -8,7 +8,7 @@ The packages directory contains the code for all algorithms and preprocessing mo
 This directory contains experiments on datasets using the machine learning packages created in the `Packages` directory of this repository.
 
 ### Docs
-This directory contains a [Latex][4] document containing notes for all the algorithms created in the `Packages` directory of this repository.
+This directory contains [Jupyter][8] notebooks and [Latex][4] documents containing notes for all the algorithms created in the `Packages` directory of this repository.
 
 ### Datasets
 This directory contains all the datasets tested in the `Experiments` section of this repository. The following datasets are provided:
@@ -33,3 +33,4 @@ After this, experiments in the `Experiments` directory can be run from within th
 [5]: https://archive.ics.uci.edu/ml/datasets/student+performance
 [6]: https://archive.ics.uci.edu/ml/datasets/iris
 [7]: https://www.kaggle.com/c/titanic
+[8]: https://jupyter.org/
