@@ -1,6 +1,8 @@
 Docs/Notebooks/*.ipynb_checkpoints
 Experiments/*.pickle
 Docs/Notes/*.aux
+Docs/Notes/*.bbl
+Docs/Notes/*.blg
 Docs/Notes/*.log
 Docs/Notes/*.out
 Docs/Notes/*.toc

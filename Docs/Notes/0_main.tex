@@ -18,6 +18,10 @@
 
 % URLs
 \usepackage{hyperref}
+\usepackage{url}
+
+% References
+\usepackage{cite}
 
 \title{Machine Learning Review}
 \author{Akshat Pandey}
@@ -29,10 +33,14 @@
 
 \tableofcontents\newpage
 
-\input{1_logistic_regression}\newpage
-\input{2_softmax_regression}\newpage
-\input{3_linear_regression}\newpage
+\input{1_linear_regression}\newpage
+\input{2_logistic_regression}\newpage
+\input{3_softmax_regression}\newpage
 \input{4_decision_tree}\newpage
 \input{5_ensemble_learning}
+
+\newpage
+\bibliography{refs}{}
+\bibliographystyle{plain}
 
 \end{document}
