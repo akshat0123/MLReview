@@ -176,6 +176,72 @@ class SoftmaxRegressionClassifier:
         return torch.einsum('ij,ik->jk', probs - y , x) / x.shape[0]
 
 
+class Perceptron:
+
+
+    def __init__(self):
+        """ Instantiate perceptron classifier
+        """
+
+        self.w = None
+        self.calcError = ErrorRate
+
+
+    def fit(self, x: torch.Tensor, y: torch.Tensor, alpha: float=0.001, epochs: int=100) -> None:
+        """ Fit perceptron classifier to dataset
+
+        Args:
+            x: input data
+            y: input labels
+            alpha: alpha parameter for weight update
+            epochs: number of epochs to train
+        """
+
+        self.w = torch.rand((1, x.shape[1]))
+
+        epochs = trange(epochs, desc='Error')
+        for epoch in epochs:
+            for ridx in range(x.shape[0]):
+                hz = self.predict(x[ridx][None, :])[0]
+                dw = self.calcPerceptronUpdate(x[ridx][None, :], hz, y[ridx])
+                self.w = self.w + alpha * dw
+
+            ypred = self.predict(x)
+            error = ErrorRate(y, ypred)
+            epochs.set_description('Err: %.4f' % error)
+
+
+    def predict(self, x: torch.Tensor):
+        """ Predict labels
+
+        Args:
+            x: input data
+
+        Returns:
+            labels for each member of input
+        """
+
+        z = torch.einsum('ij,kj->i', x, self.w)
+        hz = BinaryStep(z)[:, None]
+
+        return hz
+
+
+    def calcPerceptronUpdate(self, x: torch.Tensor, hx: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
+        """ Calculate perceptron update
+
+        Args:
+            x: input data
+            y: input labels
+            hx: predicted labels
+
+        Returns:
+            tensor of weight update values the same size as weights
+        """
+
+        return (y - hx) * x
+
+
 class LinearRegressor:
 
 

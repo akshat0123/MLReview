@@ -8,7 +8,7 @@ The packages directory contains the code for all algorithms and preprocessing mo
 This directory contains experiments on datasets using the machine learning packages created in the `Packages` directory of this repository.
 
 ### Docs
-This directory contains [Jupyter][8] notebooks and [Latex][4] documents containing notes for all the algorithms created in the `Packages` directory of this repository.
+This directory contains [Jupyter][8] notebooks containing notes for all the algorithms created in the `Packages` directory of this repository.
 
 ### Datasets
 This directory contains all the datasets tested in the `Experiments` section of this repository. The following datasets are provided:
