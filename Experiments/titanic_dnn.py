@@ -1,9 +1,8 @@
 from typing import Callable, List
 
-from mlr.NN.Layer import Dense
-from mlr.NN.Loss import *
-from mlr.NN.Model import Model
 from mlr.Models.Loss import ErrorRate
+from mlr.NN.Model import Model
+from mlr.NN.Layer import Dense
 from tqdm import trange, tqdm
 import torch
 
@@ -26,8 +25,7 @@ def main():
 
     # Train
     dnn = Model([Dense(xtrain.shape[1], 256, activation='relu'), Dense(256, 1, activation='sigmoid')])
-    alpha, batch, epochs = 0.1, 128, 1000
-    dnn.fit(xtrain, ytrain, alpha, epochs, batch, loss='cross_entropy')
+    dnn.fit(xtrain, ytrain, alpha=0.1, epochs=1000, batch=128, loss='binary_cross_entropy')
 
     # Test
     yhat = dnn.predict(xtest)
