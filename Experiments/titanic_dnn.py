@@ -1,8 +1,6 @@
-from typing import Callable, List
-
-from mlr.NN.Loss import BinaryCrossEntropy 
-from mlr.Models.Loss import ErrorRate 
+from mlr.NN.Loss import Accuracy 
 from mlr.NN.Layer import Dense
+from mlr.NN.Model import Model
 from tqdm import trange, tqdm
 import torch
 
@@ -23,60 +21,18 @@ def main():
     xtrain, ytrain = x[:trnidx], y[:trnidx]
     xtest, ytest = x[trnidx:], y[trnidx:]
 
-    batch = 128 
-    alpha = 0.01
-    epochs = 1000
-
     # Train
-    layers = [
-        Dense(xtrain.shape[1], 16, activation='relu'), 
-        Dense(16, 1, activation='sigmoid')
-    ]
-
-    epochs = trange(epochs)
-    for epoch in epochs:
-
-        rargs = torch.randperm(int(xtrain.shape[0] * 0.8))
-        xbatch, ybatch = xtrain[rargs], ytrain[rargs]
-
-        l, start, end = [], 0, batch
-        for b in range((xbatch.shape[0]//2) + 1):
-
-            if xbatch[start:end].shape[0] > 0:
-
-                # Forward pass
-                ypred = xbatch[start:end] 
-                for layer in layers:
-                    ypred = layer.forward(ypred)                        
-
-                # Loss
-                bl, dl = BinaryCrossEntropy(ybatch[start:end], ypred)
-                l.append(torch.mean(bl).item())
-
-                # Backward pass
-                for layer in layers[::-1]:
-                    dl = layer.backward(dl, alpha)
-
-            start += batch
-            end += batch
-
-        ypred = xtrain
-        for layer in layers:
-            ypred = layer.forward(ypred)                
-        ypred[ypred >= 0.5] = 1
-        ypred[ypred < 0.5] = 0
-
-        acc = 1 - ErrorRate(ytrain, ypred)
-        epochs.set_description('Loss: %.8f | Acc: %.8f' % (sum(l) / len(l), acc))
+    alpha, batch, epochs = 0.01, 128, 1000
+    dnn = Model([
+        Dense(inputdim=xtrain.shape[1], units=16, activation='relu'),
+        Dense(inputdim=16, units=1, activation='sigmoid')
+    ], loss='binary_cross_entropy')
 
     # Test
-    ypred = xtest
-    for layer in layers:
-        ypred = layer.forward(ypred)                
-    ypred[ypred >= 0.5] = 1
-    ypred[ypred < 0.5] = 0
-    error = ErrorRate(ytest, ypred)
-    print('Test Acc: %.8f' % acc)
+    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs)
+    ypred = dnn.predict(xtest)
+    print('Test Acc: %.4f' % Accuracy(ytest, ypred))
+
 
 if __name__ == '__main__':
     main()

@@ -1,12 +1,11 @@
 from mlr.Preprocessing.Preprocessing import createOneHotColumn
-from mlr.NN.Loss import CategoricalCrossEntropy 
-from mlr.Models.Loss import OneHotErrorRate
+from mlr.NN.Loss import Accuracy 
 from mlr.NN.Layer import Dense
+from mlr.NN.Model import Model
 from tqdm import trange, tqdm
 import torch
 
 from utils import loadData
-
 
 SAVED = './data.pickle'
 DATASET = 'Iris'
@@ -28,53 +27,17 @@ def main():
     xtrain, ytrain = x[:trnidx], y[:trnidx]
     xtest, ytest = x[trnidx:], y[trnidx:]
 
-    batch = 8 
-    alpha = 0.1
-    epochs = 1000
-
-    layers = [
+    # Train
+    alpha, batch, epochs = 0.1, 8, 1000
+    dnn = Model([
         Dense(inputdim=xtrain.shape[1], units=8, activation='relu'),
         Dense(inputdim=8, units=ytrain.shape[1], activation='softmax')
-    ]
+    ], loss='categorical_cross_entropy')
 
-    epochs = trange(epochs)
-    for epoch in epochs:
-
-        rargs = torch.randperm(int(xtrain.shape[0] * 0.8))
-        xbatch, ybatch = xtrain[rargs], ytrain[rargs]
-
-        l, start, end = [], 0, batch
-        for b in range((xbatch.shape[0]//2) + 1):
-
-            if xbatch[start:end].shape[0] > 0:
-
-                # Forward pass
-                ypred = xbatch[start:end] 
-                for layer in layers:
-                    ypred = layer.forward(ypred)                        
-
-                # Loss
-                bl, dl = CategoricalCrossEntropy(ybatch[start:end], ypred)
-                l.append(torch.mean(bl).item())
-
-                # Backward pass
-                for layer in layers[::-1]:
-                    dl = layer.backward(dl, alpha)
-
-            start += batch
-            end += batch
-
-        ypred = xtrain
-        for layer in layers:
-            ypred = layer.forward(ypred)                
-        acc = 1 - OneHotErrorRate(ytrain, ypred)
-        epochs.set_description('Loss: %.8f | Acc: %.8f' % (sum(l) / len(l), acc))
-
-    ypred = xtest
-    for layer in layers:
-        ypred = layer.forward(ypred)                
-    acc = 1 - OneHotErrorRate(ytest, ypred)
-    print('Test Acc: %.4f' % acc)
+    # Test
+    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs)
+    ypred = dnn.predict(xtest)
+    print('Test Acc: %.4f' % Accuracy(ytest, ypred))
 
 
 if __name__ == '__main__':
