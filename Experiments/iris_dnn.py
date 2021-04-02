@@ -106,11 +106,11 @@ class SoftmaxLayer(Layer):
 
 
     def backward(self, dl: torch.Tensor, alpha: float) -> torch.Tensor:
+
         dl_dz = torch.einsum('ijk,ik->ij', self.da_dz, dl)
         dl_dw = torch.einsum('ij,ik->jk', self.dz_dw, dl_dz) / dl.shape[0]
         dl_dx = torch.einsum('ij,kj->ki', self.dz_dx, dl_dz)
         self.w -= alpha * dl_dw
-
         return dl_dx
 
 
@@ -137,8 +137,8 @@ def main():
     xtrain, ytrain = x[:trnidx], y[:trnidx]
     xtest, ytest = x[trnidx:], y[trnidx:]
 
-    batch = 32 
-    alpha = 0.0002
+    batch = 1 
+    alpha = 0.001
     epochs = 1000
 
     layers = [
