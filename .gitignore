@@ -7,3 +7,4 @@ Docs/Notes/*.log
 Docs/Notes/*.out
 Docs/Notes/*.toc
 __pycache__
+*.swp

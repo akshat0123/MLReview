@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Callable
 
 from mlr.NN.Activation import *
 import torch
@@ -7,7 +6,8 @@ import torch
 
 activations = {
     'relu': Relu,
-    'sigmoid': Sigmoid
+    'sigmoid': Sigmoid,
+    'softmax': Softmax
 }
 
 
@@ -33,23 +33,29 @@ class Dense(Layer):
 
     def __init__(self, inputdim: int, units: int, activation: str) -> None:
 
-        self.w = torch.rand((inputdim, units)) / 10
-        self.activation = activations[activation]
+        self.w = (torch.rand((inputdim, units)) * 2 - 1)
+        self.activation = activation
         self.dz_dw = None
+        self.dz_dx = None
         self.da_dz = None
 
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        z, self.dz_dw = torch.einsum('ij,jk->ik', x, self.w), x
-        a, self.da_dz = self.activation(z)
+        z, self.dz_dw, self.dz_dx = torch.einsum('ij,jk->ik', x, self.w), x, self.w
+        a, self.da_dz = activations[self.activation](z)
         return a
 
 
     def backward(self, dl: torch.Tensor, alpha: float) -> torch.Tensor:
 
-        out = torch.einsum('ij,kl->ki', self.w, self.da_dz * dl)
-        dl_dw = torch.mean(torch.einsum('ij,ik->ji', self.dz_dw, self.da_dz * dl), dim=1)[:, None]
-        self.w = self.w - (alpha * dl_dw)
-        return out
+        if self.activation == 'softmax':
+            dl_dz = torch.einsum('ijk,ik->ij', self.da_dz, dl)
 
+        else:
+            dl_dz = self.da_dz * dl
 
+        dl_dw = torch.einsum('ij,ik->jk', self.dz_dw, dl_dz) / dl.shape[0] 
+        dl_dx = torch.einsum('ij,kj->ki', self.dz_dx, dl_dz)
+        self.w -= alpha * dl_dw
+
+        return dl_dx

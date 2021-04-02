@@ -1,4 +1,4 @@
-from typing import Callable, List
+from typing import List
 
 from mlr.NN.Layer import Layer
 from mlr.NN.Loss import *
@@ -7,7 +7,8 @@ import torch
 
 
 losses = {
-    'cross_entropy': CrossEntropy
+    'binary_cross_entropy': BinaryCrossEntropy,
+    'categorical_cross_entropy': CategoricalCrossEntropy
 }
 
 

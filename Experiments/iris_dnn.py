@@ -1,6 +1,7 @@
 from mlr.Preprocessing.Preprocessing import createOneHotColumn
+from mlr.NN.Loss import CategoricalCrossEntropy 
 from mlr.Models.Loss import OneHotErrorRate
-from abc import abstractmethod, ABC
+from mlr.NN.Layer import Dense
 from tqdm import trange, tqdm
 import torch
 
@@ -9,116 +10,6 @@ from utils import loadData
 
 SAVED = './data.pickle'
 DATASET = 'Iris'
-
-
-def Relu(x: torch.Tensor):
-        
-    z, grad = torch.clone(x), torch.clone(x)                
-    grad[grad > 0] = 1
-    grad[grad < 0] = 1e-8
-    z[z < 0] = 1e-8 
-
-    return z, grad
-
-
-def Sigmoid(x: torch.Tensor) -> (torch.Tensor, torch.Tensor): 
-
-    output = (1 / (1 + torch.exp(-x)))
-    grad = ((1 - output) * (output))
-    return output, grad
-
-
-def Softmax(x: torch.Tensor):
-
-    output = torch.exp(x) / torch.sum(torch.exp(x))
-    diags = torch.stack([torch.diag(output[i]) for i in range(output.shape[0])])
-    grad = diags - torch.einsum('ij,ik->ijk', output, output)
-
-    return output, grad
-
-
-activations = {
-    'relu': Relu,
-    'sigmoid': Sigmoid,
-    'softmax': Softmax
-}
-
-
-class Layer(ABC):
-
-    @abstractmethod
-    def __init__(self):
-        pass
-    
-
-    @abstractmethod
-    def forward(self):
-        pass
-
-
-    @abstractmethod
-    def backward(self):
-        pass
-
-
-class Dense(Layer): 
-
-
-    def __init__(self, inputdim: int, units: int, activation: str) -> None:
-
-        self.w = (torch.rand((inputdim, units)) * 2 - 1)
-        self.activation = activations[activation]
-        self.dz_dw = None
-        self.dz_dx = None
-        self.da_dz = None
-
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        z, self.dz_dw, self.dz_dx = torch.einsum('ij,jk->ik', x, self.w), x, self.w
-        a, self.da_dz = self.activation(z)
-        return a
-
-
-    def backward(self, dl: torch.Tensor, alpha: float) -> torch.Tensor:
-        dl_dz = self.da_dz * dl
-        dl_dw = torch.einsum('ij,ik->jk', self.dz_dw, dl_dz) / dl.shape[0] 
-        dl_dx = torch.einsum('ij,kj->ki', self.dz_dx, dl_dz)
-        self.w -= alpha * dl_dw
-        return dl_dx
-
-
-class SoftmaxLayer(Layer): 
-
-
-    def __init__(self, inputdim: int, units: int) -> None:
-
-        self.w = (torch.rand((inputdim, units)) * 2 - 1)
-        self.activation = Softmax 
-        self.dz_dw = None
-        self.dz_dx = None
-        self.da_dz = None
-
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        z, self.dz_dw, self.dz_dx = torch.einsum('ij,jk->ik', x, self.w), x, self.w
-        a, self.da_dz = self.activation(z)
-        return a
-
-
-    def backward(self, dl: torch.Tensor, alpha: float) -> torch.Tensor:
-
-        dl_dz = torch.einsum('ijk,ik->ij', self.da_dz, dl)
-        dl_dw = torch.einsum('ij,ik->jk', self.dz_dw, dl_dz) / dl.shape[0]
-        dl_dx = torch.einsum('ij,kj->ki', self.dz_dx, dl_dz)
-        self.w -= alpha * dl_dw
-        return dl_dx
-
-
-def CategoricalCrossEntropy(y: torch.Tensor, yhat: torch.Tensor):
-
-    loss = -1 * torch.sum(y * (torch.log(1e-8 + yhat)), dim=1)
-    grad = -1 * (y / yhat)
-    return loss, grad            
 
 
 def main():
@@ -137,13 +28,13 @@ def main():
     xtrain, ytrain = x[:trnidx], y[:trnidx]
     xtest, ytest = x[trnidx:], y[trnidx:]
 
-    batch = 1 
-    alpha = 0.001
+    batch = 8 
+    alpha = 0.1
     epochs = 1000
 
     layers = [
         Dense(inputdim=xtrain.shape[1], units=8, activation='relu'),
-        SoftmaxLayer(inputdim=8, units=ytrain.shape[1])
+        Dense(inputdim=8, units=ytrain.shape[1], activation='softmax')
     ]
 
     epochs = trange(epochs)
