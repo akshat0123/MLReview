@@ -1,4 +1,5 @@
-from mlr.Models.LinearModel import LinearRegressor, MeanSquaredError
+from mlr.Models.LinearModel import LinearRegressor
+from mlr.Models.Loss import MeanSquaredError
 import torch
 
 from utils import loadData

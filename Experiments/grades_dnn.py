@@ -1,14 +1,13 @@
-from mlr.NN.Metric import Accuracy 
+from mlr.NN.Metric import MeanSquaredError
 from mlr.NN.Layer import Dense
 from mlr.NN.Model import Model
-from tqdm import trange, tqdm
 import torch
 
 from utils import loadData
 
 
 SAVED = './data.pickle'
-DATASET = 'Titanic'
+DATASET = 'Grades'
 
 
 def main():
@@ -18,20 +17,20 @@ def main():
 
     # Train/Test split 80/20
     trnidx = int(x.shape[0] * .8)
-    xtrain, ytrain = x[:trnidx], y[:trnidx]
-    xtest, ytest = x[trnidx:], y[trnidx:]
+    xtrain, ytrain = x[:trnidx], y[:trnidx][:, None]
+    xtest, ytest = x[trnidx:], y[trnidx:][:, None]
 
     # Train
-    alpha, batch, epochs = 0.01, 128, 1000
+    alpha, batch, epochs = 1e-4, 8, 100
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=16, activation='relu'),
-        Dense(inputdim=16, units=1, activation='sigmoid')
-    ], loss='binary_cross_entropy')
+        Dense(inputdim=xtrain.shape[1], units=32, activation='relu'),
+        Dense(inputdim=32, units=1, activation='linear')
+    ], loss='mean_squared_error')
 
     # Test
     dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs)
     ypred = dnn.predict(xtest)
-    print('Test Acc: %.4f' % Accuracy(ytest, ypred))
+    print('Test MSE: %.4f' % MeanSquaredError(ytest, ypred))
 
 
 if __name__ == '__main__':

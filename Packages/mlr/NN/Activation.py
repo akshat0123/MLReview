@@ -1,6 +1,10 @@
 import torch
 
 
+def Linear(x: torch.Tensor):
+    return x, 1
+
+
 def Relu(x: torch.Tensor):
     z, grad = torch.clone(x), torch.clone(x)                
     grad[grad > 0] = 1

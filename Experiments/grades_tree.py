@@ -1,6 +1,5 @@
 from mlr.Models.DecisionTree import DecisionTreeRegressor
 from mlr.Models.Loss import MeanSquaredError
-from tqdm import trange, tqdm
 import torch
 
 from utils import loadData
@@ -21,11 +20,11 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:]
 
     # Train
-    tree = DecisionTreeRegressor(maxDepth=4, leafSize=1)
-    tree.fit(xtrain, ytrain)
+    clf = DecisionTreeRegressor(maxDepth=2)
+    clf.fit(xtrain, ytrain)
 
     # Test
-    ypred = tree.predict(xtest)
+    ypred = clf.predict(xtest)    
     error = MeanSquaredError(ytest, ypred)
     print('Test MSE: %.4f' % error)
 

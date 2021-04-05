@@ -1,11 +1,12 @@
 from mlr.Preprocessing.Preprocessing import createOneHotColumn
-from mlr.NN.Loss import Accuracy 
+from mlr.NN.Metric import Accuracy 
 from mlr.NN.Layer import Dense
 from mlr.NN.Model import Model
 from tqdm import trange, tqdm
 import torch
 
 from utils import loadData
+
 
 SAVED = './data.pickle'
 DATASET = 'Iris'
@@ -28,7 +29,7 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:]
 
     # Train
-    alpha, batch, epochs = 0.1, 8, 1000
+    alpha, batch, epochs = 0.1, 8, 100
     dnn = Model([
         Dense(inputdim=xtrain.shape[1], units=8, activation='relu'),
         Dense(inputdim=8, units=ytrain.shape[1], activation='softmax')
