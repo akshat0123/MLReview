@@ -17,8 +17,8 @@ LOSSES = {
 
 
 class Network(ABC):
-""" Abstract base class for neural network models 
-"""
+    """ Abstract base class for neural network models 
+    """
         
     @abstractmethod
     def __init__(self):
@@ -77,8 +77,8 @@ def Model(layers: List[Layer], loss=str) -> Network:
 
 
 class DefaultClassifier(Network):
-""" Default classifier class (one-hot encoded multinomial output)
-"""
+    """ Default classifier class (one-hot encoded multinomial output)
+    """
 
     def __init__(self, layers: List[Layer], loss=str) -> None:
         """ Initialize model
@@ -166,8 +166,8 @@ class DefaultClassifier(Network):
 
 
 class BinaryClassifier(DefaultClassifier):
-""" Classifier class for binomial output only
-"""
+    """ Classifier class for binomial output only
+    """
 
     def predict(self, x: torch.Tensor):
         """ Return predictions given input
@@ -188,8 +188,8 @@ class BinaryClassifier(DefaultClassifier):
 
 
 class DefaultRegressor(DefaultClassifier):
-""" Default regressor class
-"""
+    """ Default regressor class
+    """
 
     def fit(self, x: torch.Tensor, y: torch.Tensor, batch: int, alpha: float, epochs: int):
         """ Fit network to data

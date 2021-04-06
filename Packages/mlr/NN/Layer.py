@@ -14,8 +14,8 @@ ACTIVATIONS = {
 
 
 class Layer(ABC):
-""" Abstract base class for neural network layers
-"""
+    """ Abstract base class for neural network layers
+    """
 
     @abstractmethod
     def __init__(self):
@@ -58,8 +58,8 @@ def Dense(inputdim: int, units: int, activation: str) -> Layer:
 
 
 class DefaultDenseLayer(Layer): 
-""" Default dense layer class
-"""
+    """ Default dense layer class
+    """
 
 
     def __init__(self, inputdim: int, units: int, activation: str) -> None:
@@ -113,9 +113,9 @@ class DefaultDenseLayer(Layer):
 
 
 class SoftmaxDenseLayer(DefaultDenseLayer):
-""" Dense layer class for multinomial classification using the Softmax
-    activation function
-"""
+    """ Dense layer class for multinomial classification using the Softmax
+        activation function
+    """
 
 
     def backward(self, dl: torch.Tensor, alpha: float) -> torch.Tensor:
