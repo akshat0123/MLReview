@@ -6,5 +6,6 @@ Docs/Notes/*.blg
 Docs/Notes/*.log
 Docs/Notes/*.out
 Docs/Notes/*.toc
+**/*/to-do.txt
 __pycache__
 *.swp
