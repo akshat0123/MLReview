@@ -101,14 +101,15 @@ class DefaultClassifier(Network):
             output of final layer in network
         """
 
-        ypred = x
+        ypred, totalpenalty = x, 0
         for layer in self.layers:
-            ypred = layer.forward(ypred)                        
+            ypred, penalty = layer.forward(ypred)                        
+            totalpenalty += penalty
 
-        return ypred
+        return ypred, totalpenalty
 
 
-    def backward(self, dl: torch.Tensor, alpha) -> None:
+    def backward(self, dl: torch.Tensor, alpha: float, lambdaa: float) -> None:
         """ Run backpropagation through network
 
         Args:
@@ -117,10 +118,10 @@ class DefaultClassifier(Network):
         """
 
         for layer in self.layers[::-1]:
-            dl = layer.backward(dl, alpha)
+            dl = layer.backward(dl, alpha, lambdaa)
 
     
-    def fit(self, x: torch.Tensor, y: torch.Tensor, batch: int, alpha: float, epochs: int) -> None:
+    def fit(self, x: torch.Tensor, y: torch.Tensor, batch: int, alpha: float, epochs: int, lambdaa: float=1.0) -> None:
         """ Fit network to data
         
         Args:
@@ -129,6 +130,7 @@ class DefaultClassifier(Network):
             batch: batch size for training
             alpha: learning rate
             epochs: number of iterations over entire dataset to train
+            lambdaa: regularization rate
         """
 
         epochs = trange(epochs)
@@ -140,9 +142,11 @@ class DefaultClassifier(Network):
                 xbatch, ybatch = x[start:end], y[start:end]
                 if xbatch.shape[0] > 0:
 
-                    ypred = self.forward(xbatch)              # Forward pass
+
+                    ypred, penalty = self.forward(xbatch)     # Forward pass
                     bl, dl = LOSSES[self.loss](ybatch, ypred) # Calculate loss
-                    dl = self.backward(dl, alpha)             # Backpropagation
+                    bl += lambdaa * penalty                   # Add regularization term
+                    dl = self.backward(dl, alpha, lambdaa)    # Backpropagation
                     l.append(bl.item())
 
                 start += batch; end += batch
@@ -162,7 +166,7 @@ class DefaultClassifier(Network):
             predictions               
         """
          
-        return self.forward(x)
+        return self.forward(x)[0]
 
 
 class BinaryClassifier(DefaultClassifier):
@@ -179,7 +183,7 @@ class BinaryClassifier(DefaultClassifier):
             predictions               
         """
 
-        ypred = self.forward(x)
+        ypred = self.forward(x)[0]
         if self.loss == 'binary_cross_entropy':
             ypred[ypred >= 0.5] = 1
             ypred[ypred < 0.5] = 0
@@ -191,7 +195,7 @@ class DefaultRegressor(DefaultClassifier):
     """ Default regressor class
     """
 
-    def fit(self, x: torch.Tensor, y: torch.Tensor, batch: int, alpha: float, epochs: int):
+    def fit(self, x: torch.Tensor, y: torch.Tensor, batch: int, alpha: float, epochs: int, lambdaa: float=1.0):
         """ Fit network to data
         
         Args:
@@ -211,9 +215,10 @@ class DefaultRegressor(DefaultClassifier):
                 xbatch, ybatch = x[start:end], y[start:end]
                 if xbatch.shape[0] > 0:
 
-                    ypred = self.forward(xbatch)              # Forward pass
+                    ypred, penalty = self.forward(xbatch)     # Forward pass
                     bl, dl = LOSSES[self.loss](ybatch, ypred) # Calculate loss
-                    dl = self.backward(dl, alpha)             # Backpropagation
+                    bl += lambdaa * penalty                   # Add regularization term
+                    dl = self.backward(dl, alpha, lambdaa)    # Backpropagation
                     l.append(bl.item())
 
                 start += batch 

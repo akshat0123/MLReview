@@ -22,14 +22,14 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:]
 
     # Train
-    alpha, batch, epochs = 0.01, 128, 1000
+    alpha, batch, epochs, lambdaa = 1e-2, 128, 1000, 1e-4
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=16, activation='relu', initializer='he'),
-        Dense(inputdim=16, units=1, activation='sigmoid', initializer='glorot')
+        Dense(inputdim=xtrain.shape[1], units=16, activation='relu', initializer='he', regularizer='l2'),
+        Dense(inputdim=16, units=1, activation='sigmoid', initializer='glorot', regularizer='l2')
     ], loss='binary_cross_entropy')
 
     # Test
-    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs)
+    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs, lambdaa=lambdaa)
     ypred = dnn.predict(xtest)
     print('Test Acc: %.4f' % Accuracy(ytest, ypred))
 

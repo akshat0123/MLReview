@@ -21,14 +21,14 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:][:, None]
 
     # Train
-    alpha, batch, epochs = 1e-4, 8, 100
+    alpha, batch, epochs, lambdaa = 1e-4, 4, 100, 1e-2
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=32, activation='relu', initializer='glorot'),
-        Dense(inputdim=32, units=1, activation='linear')
+        Dense(inputdim=xtrain.shape[1], units=32, activation='relu', initializer='glorot', regularizer='l2'),
+        Dense(inputdim=32, units=1, activation='linear', regularizer='l2')
     ], loss='mean_squared_error')
 
     # Test
-    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs)
+    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs, lambdaa=lambdaa)
     ypred = dnn.predict(xtest)
     print('Test MSE: %.4f' % MeanSquaredError(ytest, ypred))
 

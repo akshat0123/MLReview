@@ -29,14 +29,14 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:]
 
     # Train
-    alpha, batch, epochs = 0.1, 32, 100
+    alpha, batch, epochs, lambdaa = 1.0, 32, 100, 1e-4
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=8, activation='relu', initializer='he'),
-        Dense(inputdim=8, units=ytrain.shape[1], activation='softmax', initializer='glorot')
+        Dense(inputdim=xtrain.shape[1], units=8, activation='relu', initializer='he', regularizer='l2'),
+        Dense(inputdim=8, units=ytrain.shape[1], activation='softmax', initializer='glorot', regularizer='l2')
     ], loss='categorical_cross_entropy')
 
     # Test
-    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs)
+    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs, lambdaa=lambdaa)
     ypred = dnn.predict(xtest)
     print('Test Acc: %.4f' % Accuracy(ytest, ypred))
 

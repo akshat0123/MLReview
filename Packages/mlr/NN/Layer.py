@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 
-from mlr.NN.Activation import *
+from mlr.NN.Regularizer import *
 from mlr.NN.Initializer import *
+from mlr.NN.Activation import *
 import torch
 
 
@@ -19,6 +20,13 @@ INITIALIZERS = {
     'glorot': GlorotInitializer,
     'he': HeInitializer,
     'random': RandomInitializer
+}
+
+# Applicable regularizers
+REGULARIZERS = {
+    'l': LRegularizer,
+    'l1': L1Regularizer,
+    'l2': L2Regularizer
 }
 
 
@@ -47,7 +55,7 @@ class Layer(ABC):
         pass
 
 
-def Dense(inputdim: int, units: int, activation: str, initializer: str=None) -> Layer:
+def Dense(inputdim: int, units: int, activation: str, initializer: str=None, regularizer: str=None) -> Layer:
     """ Returns appropriate initialized layer architecture provided activation
 
     Args:
@@ -55,16 +63,17 @@ def Dense(inputdim: int, units: int, activation: str, initializer: str=None) -> 
         units: number of units in layer
         activation: activation function string => should be a key of ACTIVATIONS
         initializer: weight initialization scheme => should be a key of INITIALIZERS
+        regularizer: regularization method => should be a key of REGULARIZERS
 
     Returns:
         Initialized neural network layer
     """
 
     if activation == 'softmax':                
-        return SoftmaxDenseLayer(inputdim=inputdim, units=units, activation='softmax', initializer=initializer)
+        return SoftmaxDenseLayer(inputdim=inputdim, units=units, activation='softmax', initializer=initializer, regularizer=regularizer)
 
     else: 
-        return DefaultDenseLayer(inputdim=inputdim, units=units, activation=activation, initializer=initializer)
+        return DefaultDenseLayer(inputdim=inputdim, units=units, activation=activation, initializer=initializer, regularizer=regularizer)
 
 
 class DefaultDenseLayer(Layer): 
@@ -72,7 +81,7 @@ class DefaultDenseLayer(Layer):
     """
 
 
-    def __init__(self, inputdim: int, units: int, activation: str, initializer: str=None) -> None:
+    def __init__(self, inputdim: int, units: int, activation: str, initializer: str=None, regularizer: str=None) -> None:
         """ Initialize default dense layer
 
         Args:
@@ -80,13 +89,16 @@ class DefaultDenseLayer(Layer):
             units: number of units in layer
             activation: activation function string => should be a key of ACTIVATIONS
             initializer: weight initialization scheme => should be a key of INITIALIZERS
+            regularizer: regularization method => should be a key of REGULARIZERS
         """
 
         self.w = INITIALIZERS[initializer](inputdim, units) if initializer else INITIALIZERS['random'](inputdim, units)
+        self.regularizer = regularizer if regularizer else 'l'
         self.activation = activation
         self.dz_dw = None
         self.dz_dx = None
         self.da_dz = None
+        self.dr_dw = None
 
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -101,16 +113,20 @@ class DefaultDenseLayer(Layer):
 
         z, self.dz_dw, self.dz_dx = torch.einsum('ij,jk->ik', x, self.w), x, self.w
         a, self.da_dz = ACTIVATIONS[self.activation](z)
-        return a
+        r, self.dr_dw = REGULARIZERS[self.regularizer](self.w)
+
+        return a, r
 
 
-    def backward(self, dl: torch.Tensor, alpha: float) -> torch.Tensor:
+    def backward(self, dl: torch.Tensor, alpha: float, lambdaa: float=1.0) -> torch.Tensor:
         """ Run backward pass through layer, updating weights and returning
             cumulative gradient from last connected layer (output layer)
             backwards through to this layer
 
         Args:
             dl: cumulative gradient calculated from layers ahead of this layer
+            alpha: learning rate
+            lambdaa: regularization rate
 
         Returns:
             cumulative gradient calculated at this layer
@@ -119,7 +135,7 @@ class DefaultDenseLayer(Layer):
         dl_dz = self.da_dz * dl
         dl_dw = torch.einsum('ij,ik->jk', self.dz_dw, dl_dz) / dl.shape[0] 
         dl_dx = torch.einsum('ij,kj->ki', self.dz_dx, dl_dz)
-        self.w -= alpha * dl_dw
+        self.w -= alpha * (dl_dw + lambdaa * self.dr_dw)
         return dl_dx
 
 
@@ -129,13 +145,15 @@ class SoftmaxDenseLayer(DefaultDenseLayer):
     """
 
 
-    def backward(self, dl: torch.Tensor, alpha: float) -> torch.Tensor:
+    def backward(self, dl: torch.Tensor, alpha: float, lambdaa: float=1.0) -> torch.Tensor:
         """ Run backward pass through layer, updating weights and returning
             cumulative gradient from last connected layer (output layer)
             backwards through to this layer
 
         Args:
             dl: cumulative gradient calculated from layers ahead of this layer
+            alpha: learning rate
+            lambdaa: regularization rate
 
         Returns:
             cumulative gradient calculated at this layer
@@ -144,7 +162,7 @@ class SoftmaxDenseLayer(DefaultDenseLayer):
         dl_dz = torch.einsum('ijk,ik->ij', self.da_dz, dl)
         dl_dw = torch.einsum('ij,ik->jk', self.dz_dw, dl_dz) / dl.shape[0] 
         dl_dx = torch.einsum('ij,kj->ki', self.dz_dx, dl_dz)
-        self.w -= alpha * dl_dw
+        self.w -= alpha * (dl_dw + lambdaa * self.dr_dw)
 
         return dl_dx
 
