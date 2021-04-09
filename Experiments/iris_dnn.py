@@ -29,10 +29,10 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:]
 
     # Train
-    alpha, batch, epochs = 0.1, 8, 100
+    alpha, batch, epochs = 0.1, 32, 100
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=8, activation='relu'),
-        Dense(inputdim=8, units=ytrain.shape[1], activation='softmax')
+        Dense(inputdim=xtrain.shape[1], units=8, activation='relu', initializer='he'),
+        Dense(inputdim=8, units=ytrain.shape[1], activation='softmax', initializer='glorot')
     ], loss='categorical_cross_entropy')
 
     # Test

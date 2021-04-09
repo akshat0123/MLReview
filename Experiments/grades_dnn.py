@@ -23,7 +23,7 @@ def main():
     # Train
     alpha, batch, epochs = 1e-4, 8, 100
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=32, activation='relu'),
+        Dense(inputdim=xtrain.shape[1], units=32, activation='relu', initializer='glorot'),
         Dense(inputdim=32, units=1, activation='linear')
     ], loss='mean_squared_error')
 

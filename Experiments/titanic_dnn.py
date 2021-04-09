@@ -24,8 +24,8 @@ def main():
     # Train
     alpha, batch, epochs = 0.01, 128, 1000
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=16, activation='relu'),
-        Dense(inputdim=16, units=1, activation='sigmoid')
+        Dense(inputdim=xtrain.shape[1], units=16, activation='relu', initializer='he'),
+        Dense(inputdim=16, units=1, activation='sigmoid', initializer='glorot')
     ], loss='binary_cross_entropy')
 
     # Test

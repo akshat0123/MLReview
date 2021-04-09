@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from mlr.NN.Activation import *
+from mlr.NN.Initializer import *
 import torch
 
 
@@ -10,6 +11,14 @@ ACTIVATIONS = {
     'relu'   : Relu,
     'sigmoid': Sigmoid,
     'softmax': Softmax
+}
+
+
+# Applicable initializers
+INITIALIZERS = {
+    'glorot': GlorotInitializer,
+    'he': HeInitializer,
+    'random': RandomInitializer
 }
 
 
@@ -38,23 +47,24 @@ class Layer(ABC):
         pass
 
 
-def Dense(inputdim: int, units: int, activation: str) -> Layer:
+def Dense(inputdim: int, units: int, activation: str, initializer: str=None) -> Layer:
     """ Returns appropriate initialized layer architecture provided activation
 
     Args:
         inputdim: number of input units
         units: number of units in layer
         activation: activation function string => should be a key of ACTIVATIONS
+        initializer: weight initialization scheme => should be a key of INITIALIZERS
 
     Returns:
         Initialized neural network layer
     """
 
     if activation == 'softmax':                
-        return SoftmaxDenseLayer(inputdim=inputdim, units=units, activation='softmax')
+        return SoftmaxDenseLayer(inputdim=inputdim, units=units, activation='softmax', initializer=initializer)
 
     else: 
-        return DefaultDenseLayer(inputdim=inputdim, units=units, activation=activation)            
+        return DefaultDenseLayer(inputdim=inputdim, units=units, activation=activation, initializer=initializer)
 
 
 class DefaultDenseLayer(Layer): 
@@ -62,16 +72,17 @@ class DefaultDenseLayer(Layer):
     """
 
 
-    def __init__(self, inputdim: int, units: int, activation: str) -> None:
+    def __init__(self, inputdim: int, units: int, activation: str, initializer: str=None) -> None:
         """ Initialize default dense layer
 
         Args:
             inputdim: number of input units
             units: number of units in layer
             activation: activation function string => should be a key of ACTIVATIONS
+            initializer: weight initialization scheme => should be a key of INITIALIZERS
         """
 
-        self.w = (torch.rand((inputdim, units)) * 2 - 1)
+        self.w = INITIALIZERS[initializer](inputdim, units) if initializer else INITIALIZERS['random'](inputdim, units)
         self.activation = activation
         self.dz_dw = None
         self.dz_dx = None
