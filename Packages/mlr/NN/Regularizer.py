@@ -9,7 +9,7 @@ def LRegularizer(w: torch.tensor) -> torch.Tensor:
     Returns:
     """
 
-    return torch.Tensor([0]), torch.Tensor([0])        
+    return 0, torch.Tensor([0])        
 
 
 def L1Regularizer(w: torch.Tensor) -> torch.Tensor:

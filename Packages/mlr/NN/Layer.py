@@ -55,7 +55,7 @@ class Layer(ABC):
         pass
 
 
-def Dense(inputdim: int, units: int, activation: str, initializer: str=None, regularizer: str=None) -> Layer:
+def Dense(inputdim: int, units: int, activation: str, initializer: str=None, regularizer: str=None, dropout: float=None) -> Layer:
     """ Returns appropriate initialized layer architecture provided activation
 
     Args:
@@ -64,16 +64,19 @@ def Dense(inputdim: int, units: int, activation: str, initializer: str=None, reg
         activation: activation function string => should be a key of ACTIVATIONS
         initializer: weight initialization scheme => should be a key of INITIALIZERS
         regularizer: regularization method => should be a key of REGULARIZERS
+        dropout: probability that a hidden unit should be dropped out
 
     Returns:
         Initialized neural network layer
     """
 
     if activation == 'softmax':                
-        return SoftmaxDenseLayer(inputdim=inputdim, units=units, activation='softmax', initializer=initializer, regularizer=regularizer)
+        return SoftmaxDenseLayer(inputdim=inputdim, units=units,
+        activation='softmax', initializer=initializer, regularizer=regularizer, dropout=dropout)
 
     else: 
-        return DefaultDenseLayer(inputdim=inputdim, units=units, activation=activation, initializer=initializer, regularizer=regularizer)
+        return DefaultDenseLayer(inputdim=inputdim, units=units,
+        activation=activation, initializer=initializer, regularizer=regularizer, dropout=dropout)
 
 
 class DefaultDenseLayer(Layer): 
@@ -81,7 +84,7 @@ class DefaultDenseLayer(Layer):
     """
 
 
-    def __init__(self, inputdim: int, units: int, activation: str, initializer: str=None, regularizer: str=None) -> None:
+    def __init__(self, inputdim: int, units: int, activation: str, initializer: str=None, regularizer: str=None, dropout: float=None) -> None:
         """ Initialize default dense layer
 
         Args:
@@ -90,11 +93,13 @@ class DefaultDenseLayer(Layer):
             activation: activation function string => should be a key of ACTIVATIONS
             initializer: weight initialization scheme => should be a key of INITIALIZERS
             regularizer: regularization method => should be a key of REGULARIZERS
+            dropout: probability that a hidden unit should be dropped out
         """
 
         self.w = INITIALIZERS[initializer](inputdim, units) if initializer else INITIALIZERS['random'](inputdim, units)
         self.regularizer = regularizer if regularizer else 'l'
         self.activation = activation
+        self.dropout = dropout
         self.dz_dw = None
         self.dz_dx = None
         self.da_dz = None
@@ -113,6 +118,14 @@ class DefaultDenseLayer(Layer):
 
         z, self.dz_dw, self.dz_dx = torch.einsum('ij,jk->ik', x, self.w), x, self.w
         a, self.da_dz = ACTIVATIONS[self.activation](z)
+
+        if self.dropout:
+            mask = torch.rand(a.shape)
+            mask[mask <= self.dropout] = 0
+            mask[mask > self.dropout] = 1
+            a = (a * mask) / (1-self.dropout)
+            self.da_dz = (self.da_dz * mask) / (1-self.dropout)
+
         r, self.dr_dw = REGULARIZERS[self.regularizer](self.w)
 
         return a, r
