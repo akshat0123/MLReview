@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from mlr.NN.Optimizer import Optimizer
 from mlr.NN.Regularizer import *
 from mlr.NN.Initializer import *
 from mlr.NN.Activation import *
@@ -21,6 +22,7 @@ INITIALIZERS = {
     'he': HeInitializer,
     'random': RandomInitializer
 }
+
 
 # Applicable regularizers
 REGULARIZERS = {
@@ -55,6 +57,16 @@ class Layer(ABC):
         pass
 
 
+    def setOptimizer(self, optimizer: Optimizer) -> None:
+        """ Set optimizer
+
+        Args:
+            optimizer: Optimizer object
+        """
+
+        self.optimizer = optimizer
+
+
 def Dense(inputdim: int, units: int, activation: str, initializer: str=None, regularizer: str=None, dropout: float=None) -> Layer:
     """ Returns appropriate initialized layer architecture provided activation
 
@@ -71,12 +83,10 @@ def Dense(inputdim: int, units: int, activation: str, initializer: str=None, reg
     """
 
     if activation == 'softmax':                
-        return SoftmaxDenseLayer(inputdim=inputdim, units=units,
-        activation='softmax', initializer=initializer, regularizer=regularizer, dropout=dropout)
+        return SoftmaxDenseLayer(inputdim=inputdim, units=units, activation='softmax', initializer=initializer, regularizer=regularizer, dropout=dropout) 
 
     else: 
-        return DefaultDenseLayer(inputdim=inputdim, units=units,
-        activation=activation, initializer=initializer, regularizer=regularizer, dropout=dropout)
+        return DefaultDenseLayer(inputdim=inputdim, units=units, activation=activation, initializer=initializer, regularizer=regularizer, dropout=dropout)
 
 
 class DefaultDenseLayer(Layer): 
@@ -100,6 +110,7 @@ class DefaultDenseLayer(Layer):
         self.regularizer = regularizer if regularizer else 'l'
         self.activation = activation
         self.dropout = dropout
+        self.optimizer = None
         self.dz_dw = None
         self.dz_dx = None
         self.da_dz = None
@@ -148,7 +159,7 @@ class DefaultDenseLayer(Layer):
         dl_dz = self.da_dz * dl
         dl_dw = torch.einsum('ij,ik->jk', self.dz_dw, dl_dz) / dl.shape[0] 
         dl_dx = torch.einsum('ij,kj->ki', self.dz_dx, dl_dz)
-        self.w -= alpha * (dl_dw + lambdaa * self.dr_dw)
+        self.w = self.optimizer.update(self.w, alpha, dl_dw, self.dr_dw, lambdaa)
         return dl_dx
 
 
@@ -175,7 +186,7 @@ class SoftmaxDenseLayer(DefaultDenseLayer):
         dl_dz = torch.einsum('ijk,ik->ij', self.da_dz, dl)
         dl_dw = torch.einsum('ij,ik->jk', self.dz_dw, dl_dz) / dl.shape[0] 
         dl_dx = torch.einsum('ij,kj->ki', self.dz_dx, dl_dz)
-        self.w -= alpha * (dl_dw + lambdaa * self.dr_dw)
+        self.w = self.optimizer.update(self.w, alpha, dl_dw, self.dr_dw, lambdaa) 
 
         return dl_dx
 

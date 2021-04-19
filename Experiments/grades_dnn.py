@@ -1,4 +1,5 @@
 from mlr.NN.Metric import MeanSquaredError
+from mlr.NN.Optimizer import SGDOptimizer
 from mlr.NN.Layer import Dense
 from mlr.NN.Model import Model
 import torch
@@ -21,14 +22,16 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:][:, None]
 
     # Train
-    alpha, batch, epochs, lambdaa = 1e-4, 4, 100, 1e-2
+    optimizer = SGDOptimizer(momentum=True, epsilon=1e-4)
+    alpha, batch, epochs = 1e-4, 4, 100, 
+
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=32, activation='relu', initializer='glorot', regularizer='l2'),
-        Dense(inputdim=32, units=1, activation='linear', regularizer='l2')
-    ], loss='mean_squared_error')
+        Dense(inputdim=xtrain.shape[1], units=32, activation='relu'),
+        Dense(inputdim=32, units=1, activation='linear')
+    ], loss='mean_squared_error', optimizer=optimizer)
 
     # Test
-    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs, lambdaa=lambdaa)
+    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs)
     ypred = dnn.predict(xtest)
     print('Test MSE: %.4f' % MeanSquaredError(ytest, ypred))
 

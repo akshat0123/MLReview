@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List
+import copy
 
 from mlr.NN.Metric import Accuracy
 from mlr.NN.Layer import Layer
+from mlr.NN.Optimizer import *
 from mlr.NN.Loss import *
 from tqdm import trange
 import torch
@@ -55,38 +57,41 @@ class Network(ABC):
         pass
 
 
-def Model(layers: List[Layer], loss=str) -> Network:
+def Model(layers: List[Layer], loss: str, optimizer: Optimizer) -> Network:
     """ Return initialized neural network model provided loss type
 
     Args:
         layers: list of initialized neural network Layer objects
         loss: string describing loss type => should be a key of LOSSES
+        optimizer: Optimizer for model
 
     Returns:
         Initialized neural nework model object
     """
 
     if loss == 'binary_cross_entropy':
-        return BinaryClassifier(layers, loss='binary_cross_entropy')
+        return BinaryClassifier(layers, loss='binary_cross_entropy', optimizer=optimizer)
 
     elif loss == 'categorical_cross_entropy':
-        return DefaultClassifier(layers, loss='categorical_cross_entropy')
+        return DefaultClassifier(layers, loss='categorical_cross_entropy', optimizer=optimizer)
 
     elif loss == 'mean_squared_error':
-        return DefaultRegressor(layers, loss='mean_squared_error')
+        return DefaultRegressor(layers, loss='mean_squared_error', optimizer=optimizer)
 
 
 class DefaultClassifier(Network):
     """ Default classifier class (one-hot encoded multinomial output)
     """
 
-    def __init__(self, layers: List[Layer], loss=str) -> None:
+    def __init__(self, layers: List[Layer], loss: str, optimizer: str) -> None:
         """ Initialize model
 
         Args:
             layers: list of initialized neural network Layer objects
             loss: string describing loss type => should be a key of LOSSES
+            optimizer: Optimizer for model
         """
+        for layer in layers: layer.setOptimizer(copy.copy(optimizer))
         self.layers = layers
         self.loss = loss
 

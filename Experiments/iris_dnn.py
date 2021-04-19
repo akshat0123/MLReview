@@ -31,9 +31,9 @@ def main():
     # Train
     alpha, batch, epochs, lambdaa = 1.0, 32, 100, 1e-4
     dnn = Model([
-        Dense(inputdim=xtrain.shape[1], units=8, activation='relu', initializer='he', regularizer='l2'),
-        Dense(inputdim=8, units=ytrain.shape[1], activation='softmax', initializer='glorot', regularizer='l2')
-    ], loss='categorical_cross_entropy')
+        Dense(inputdim=xtrain.shape[1], units=8, activation='relu'),
+        Dense(inputdim=8, units=ytrain.shape[1], activation='softmax')
+    ], loss='categorical_cross_entropy', optimizer='sgdm')
 
     # Test
     dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs, lambdaa=lambdaa)
