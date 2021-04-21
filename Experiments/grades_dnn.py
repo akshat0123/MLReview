@@ -1,5 +1,5 @@
+from mlr.NN.Optimizer import RMSPropOptimizer
 from mlr.NN.Metric import MeanSquaredError
-from mlr.NN.Optimizer import SGDOptimizer
 from mlr.NN.Layer import Dense
 from mlr.NN.Model import Model
 import torch
@@ -22,8 +22,8 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:][:, None]
 
     # Train
-    optimizer = SGDOptimizer(momentum=True, epsilon=1e-4)
-    alpha, batch, epochs = 1e-4, 4, 100, 
+    optimizer = RMSPropOptimizer()
+    alpha, batch, epochs = 1e-3, 4, 100
 
     dnn = Model([
         Dense(inputdim=xtrain.shape[1], units=32, activation='relu'),

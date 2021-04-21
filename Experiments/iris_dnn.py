@@ -1,4 +1,5 @@
 from mlr.Preprocessing.Preprocessing import createOneHotColumn
+from mlr.NN.Optimizer import RMSPropOptimizer 
 from mlr.NN.Metric import Accuracy 
 from mlr.NN.Layer import Dense
 from mlr.NN.Model import Model
@@ -29,14 +30,16 @@ def main():
     xtest, ytest = x[trnidx:], y[trnidx:]
 
     # Train
-    alpha, batch, epochs, lambdaa = 1.0, 32, 100, 1e-4
+    alpha, batch, epochs = 1e-1, 32, 100
+    optimizer = RMSPropOptimizer()
+
     dnn = Model([
         Dense(inputdim=xtrain.shape[1], units=8, activation='relu'),
         Dense(inputdim=8, units=ytrain.shape[1], activation='softmax')
-    ], loss='categorical_cross_entropy', optimizer='sgdm')
+    ], loss='categorical_cross_entropy', optimizer=optimizer)
 
     # Test
-    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs, lambdaa=lambdaa)
+    dnn.fit(x=xtrain, y=ytrain, batch=batch, alpha=alpha, epochs=epochs)
     ypred = dnn.predict(xtest)
     print('Test Acc: %.4f' % Accuracy(ytest, ypred))
 
