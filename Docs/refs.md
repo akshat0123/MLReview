@@ -13,3 +13,4 @@
 ### Websites
 - Bendersky, Eli. “The Softmax Function and Its Derivative.” Eli Bendersky’s Website. 2016. https://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/. Accessed 17 Mar. 2021.
 - Liu, Ethen. Gradient Boosting Machine (GBM). http://ethen8181.github.io/machine-learning/trees/gbm/gbm.html. Accessed 17 Mar. 2021.
+- Weinberger, Kilian. “Lecture 12: Bias-Variance Tradeoff”. Machine Learning for Intelligent Systems. 2017. https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote12.html. Accessed 27 Apr. 2021.
