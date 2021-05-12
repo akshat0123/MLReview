@@ -1,5 +1,7 @@
+from typing import List
 import pickle, csv, os
 
+from tqdm import trange, tqdm
 import numpy as np
 import torch
 
@@ -176,24 +178,45 @@ def loadIrisData(path: str) -> (torch.Tensor, torch.Tensor, np.ndarray):
     return x, y, columns
 
 
+def loadPennData(path: str) -> (List[str], List[str], None):
+    """
+    """
+
+    trainpath = "%s/%s" % (path, "ptb.train.txt")
+    testpath = "%s/%s" % (path, "ptb.test.txt")
+
+    train = [line for line in open(trainpath , 'r').readlines()]
+    test = [line for line in open(testpath , 'r').readlines()]
+
+    return train, test, None 
+
+
 DATASETS = {
     'Iris': {
         'path': '../Datasets/Iris/iris.data',
-        'loader': loadIrisData
+        'loader': loadIrisData,
+        'save': True
     },
     'Titanic': {
         'path': '../Datasets/Titanic/train.csv',
-        'loader': loadTitanicData
+        'loader': loadTitanicData,
+        'save': True
     },
     'Grades': {
         'path': '../Datasets/Grades/student-mat.csv',
-        'loader': loadGradesData
+        'loader': loadGradesData,
+        'save': True
+    },
+    'PennTreebank': {
+        'path': '../Datasets/PennTreebank',
+        'loader': loadPennData,
+        'save': True 
     }
 }
 
 
-def loadData(dataset: str, picklepath: str) -> (torch.Tensor, torch.Tensor, np.ndarray):
-    """ Load one of three datasets from DATASETS
+def loadData(dataset: str, picklepath: str):
+    """ Load one of four datasets from DATASETS
 
     Args:
         dataset: key name of dataset (from DATASETS dict above)
@@ -214,11 +237,11 @@ def loadData(dataset: str, picklepath: str) -> (torch.Tensor, torch.Tensor, np.n
 
         else:
             x, y, columns = DATASETS[dataset]['loader'](DATASETS[dataset]['path'])
-            pickle.dump({'iris': {'x': x, 'y': y, 'columns': columns}}, open(picklepath, 'wb'))
+            pickle.dump({ dataset: {'x': x, 'y': y, 'columns': columns}}, open(picklepath, 'wb'))
 
     else:
         x, y, columns = DATASETS[dataset]['loader'](DATASETS[dataset]['path'])
-        pickle.dump({'iris': {'x': x, 'y': y, 'columns': columns}}, open(picklepath, 'wb'))
+        pickle.dump({ dataset: {'x': x, 'y': y, 'columns': columns}}, open(picklepath, 'wb'))
 
     return x, y, columns        
 
